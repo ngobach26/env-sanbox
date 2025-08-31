@@ -1,0 +1,39 @@
+name: Sandbox Environment CI/CD
+
+on:
+  create:
+    tags:
+      - v*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: 
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install aws-iam-authenticator
+        run: |
+          echo "Installing aws-iam-authenticator"
+          mkdir ~/aws
+          curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator
+          chmod +x ~/aws/aws-iam-authenticator
+          sudo mv ~/aws/aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+      - name: Terraform fmt
+        run: terraform fmt
+      - name: Terraform Init
+        run: terraform init
+      - name : Terraform Validate
+        run: terraform validate -no-color
+      - name: Terraform Plan 
+        run: terraform plan -no-color
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -no-color
+      - name: Upload kubeconfig file
+        uses: actions/upload-artifact@v3
+        with:
+          name: kubeconfig
+          path: kubeconfig
