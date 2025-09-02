@@ -29,7 +29,7 @@ module "aws-network" {
 
 # EKS Configuration
 module "aws-eks" {
-  source = "*github.com/ngobach26/module-aws-kubernetes*"
+  source = "github.com/ngobach26/module-aws-kubernetes"
   ms_namespace = "microservices"
   env_name = local.env_name
   aws_region = local.aws_region
@@ -47,7 +47,7 @@ module "aws-eks" {
 
 # GitOps Configuration
 module "argo-cd-server" {
-  source = "*github.com/ngobach26/module-argo-cd*"
+  source = "github.com/ngobach26/module-argo-cd"
   kubernetes_cluster_id = module.aws-eks.eks_cluster_id
   kubernetes_cluster_name = module.aws-eks.eks_cluster_name
   kubernetes_cluster_cert_data = module.aws-eks.eks_cluster_certificate_data
